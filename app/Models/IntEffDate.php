@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class IntEffDate extends Model
 {
-    use HasFactory;
+    protected $table = 'inteffdate';
     protected $primaryKey = 'IntEffDateID';
 
     protected $fillable = [
