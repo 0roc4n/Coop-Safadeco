@@ -7,6 +7,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import Sidebar from '@/Components/Sidebar.vue';
 
 defineProps({
     title: String,
@@ -42,15 +43,12 @@ const logout = () => {
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
+                                    <div class="flex items-center">
+                                        <div><ApplicationMark class="block h-9 w-auto" /></div>
+                                        <div class="hidden sm:block ms-3 text-xl font-semibold text-blue-800">SAFADECO</div>
+                                    </div>
+                                    
                                 </Link>
-                            </div>
-
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
                             </div>
                         </div>
 
@@ -273,16 +271,23 @@ const logout = () => {
                 </div>
             </nav>
 
-            <!-- Page Heading -->
+            <!-- Page Heading
             <header v-if="$slots.header" class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
-            </header>
+            </header> -->
 
             <!-- Page Content -->
             <main>
-                <slot />
+                <!-- <Sidebar />
+                <slot /> -->
+                <div class="flex">
+                    <Sidebar />
+                    <div class="flex-1 p-6 bg-white">
+                        <slot />
+                    </div>
+                </div>
             </main>
         </div>
     </div>
