@@ -1,4 +1,5 @@
 <template>
+  <Head title="Login" />
   <div class="min-h-screen bg-gray-50">
     <!-- Header with SAFADECO branding -->
     <div class="bg-yellow-400 px-4 py-6">
@@ -130,6 +131,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 
 // Form state
 const form = reactive({

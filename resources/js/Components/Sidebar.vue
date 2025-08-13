@@ -7,7 +7,7 @@
       <span class="ml-3 font-bold text-lg">SAFADECO</span>
     </div> -->
     <nav class="flex-1 px-4 py-6 space-y-3">
-      <SidebarLink to="/dashboard" label="Dashboard" />
+      <SidebarLink to="/user/dashboard" label="Dashboard" />
       <SidebarLink to="/clients" label="Clients" />
       <SidebarLink to="/accounts" label="Accounts" />
       <SidebarLink to="/loans" label="Loans" />
