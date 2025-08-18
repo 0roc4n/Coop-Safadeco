@@ -17,7 +17,7 @@ class AdminMiddleware
         // Check if user is authenticated and has role_id == 1 (admin)
         if (!$user || $user->role_id !== 1) {
             abort(403, 'Unauthorized');
-            return redirect()->route('logout')->with('error', 'You do not have permission to access this page.');
+            return redirect('welcome')->with('error', 'You do not have permission to access this page.');
         }
         return $next($request);
     }

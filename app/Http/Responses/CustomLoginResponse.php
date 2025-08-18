@@ -9,7 +9,7 @@ class CustomLoginResponse implements LoginResponseContract
     public function toResponse($request)
     {
         $user = $request->user();
-        dd($user); // Debugging line to inspect the user object
+        // dd($user); // Debugging line to inspect the user object
 
         // Example: redirect based on role column
         if ($user->role_id === '1') {

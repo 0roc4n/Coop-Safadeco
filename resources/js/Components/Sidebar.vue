@@ -12,7 +12,7 @@
       <SidebarLink to="/accounts" label="Accounts" />
       <SidebarLink to="/loans" label="Loans" />
       <SidebarLink to="/savings" label="Savings" />
-      <SidebarLink to="/user/systemaccounts" label="System Accounts" />
+      <SidebarLink to="/admin/systemaccounts" label="System Accounts" />
       <SidebarLink to="/user/systemprevi" label="Accounts Previlige" />
       <SidebarLink to="/user/profile" label="Profile" />
     </nav>
