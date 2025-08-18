@@ -15,9 +15,9 @@ class AdminMiddleware
     {
         $user = Auth::user();
         // Check if user is authenticated and has role_id == 1 (admin)
-        if (!$user || $user->role_id !== 1) {
+        if (!$user || $user->role_id !== 1 && $user->role_id !== 3 && $user->role_id !== 4) {
             abort(403, 'Unauthorized');
-            return redirect('welcome')->with('error', 'You do not have permission to access this page.');
+            // return redirect('welcome')->with('error', 'You do not have permission to access this page.');
         }
         return $next($request);
     }

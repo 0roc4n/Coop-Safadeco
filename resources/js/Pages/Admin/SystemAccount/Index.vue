@@ -36,7 +36,7 @@
                                     class="flex items-center justify-between py-3 border-b last:border-b-0 hover:bg-gray-50 px-2 rounded transition"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <img :src="account.profile_photo_url" alt="avatar" class="w-9 h-9 rounded-full border" />
+                                        <img :src="`/storage/${account.profile_photo_path}`" alt="avatar" class="w-9 h-9 rounded-full border" />
                                         <span class="font-medium text-gray-800">{{ account.name }}</span>
                                     </div>
                                     <div class="flex gap-2">
@@ -94,7 +94,7 @@
                                 <label class="block text-sm font-medium mb-1 text-gray-700">Role</label>
                                 <select v-model="createForm.role_id" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white/80" required>
                                     <option value="" disabled>Select role</option>
-                                    <option v-for="role in rolesWithId" :key="role.id" :value="role.id">{{ role.name }}</option>
+                                    <option v-for="role in systemRoles" :key="role.id" :value="role.id">{{ role.name }}</option>
                                 </select>
                             </div>
                             <div class="flex justify-end gap-2 pt-2">
@@ -115,6 +115,10 @@ import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     systemAccounts: {
+        type: Array,
+        required: true
+    },
+    systemRoles: {
         type: Array,
         required: true
     }
@@ -161,11 +165,15 @@ const rolesWithId = computed(() => {
 });
 
 const roles = computed(() => rolesWithId.value.map(r => r.name));
-const activeRole = ref(roles.value[0] || '');
+const activeRole = ref('');
+
+// Set initial active role when component is mounted
+if (roles.value.length > 0) {
+    activeRole.value = roles.value[0];
+}
 
 const filteredAccounts = computed(() => {
     return props.systemAccounts
-        .filter(acc => acc.role?.name !== 'member')
         .filter(acc => acc.role?.name === activeRole.value)
         .filter(acc => acc.name.toLowerCase().includes(search.value.toLowerCase()));
 });

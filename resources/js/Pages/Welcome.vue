@@ -40,8 +40,18 @@
           </div>
           <button class="flex items-center space-x-1 text-gray-600 hover:text-gray-800">
             <span>👤</span>
-            <!-- <span class="text-sm font-medium">Login</span> -->
-             <Link :href="route('login')" class="text-sm font-medium">Login</Link>
+           <template v-if="$page.props.auth.user">
+              <span>{{ $page.props.auth.user.name }}</span>
+              <DropdownLink as="button" @click="logout">
+                Logout
+              </DropdownLink>
+            </template>
+            <template v-else>
+              <Link href="/login" class="text-blue-600 hover:underline">Login</Link>
+            </template>
+            <!-- <span class=" bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-sm font-medium text-white"> -->
+             
+            <!-- </span> -->
           </button>
         </div>
       </div>
@@ -151,6 +161,13 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3';
+const page = usePage();
+import DropdownLink from '@/Components/DropdownLink.vue';
+const logout = () => {
+    router.post(route('logout'));
+};
 </script>
 
 <style scoped>

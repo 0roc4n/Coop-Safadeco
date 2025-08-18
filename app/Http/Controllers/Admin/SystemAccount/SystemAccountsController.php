@@ -7,16 +7,21 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use App\Models\Role;
 
 class SystemAccountsController extends Controller
 {
     public function index(){
-        $systemAccounts = User::select('id', 'name', 'role_id', 'created_at')
+        // Get all roles except 'member'
+        $systemAccounts = User::select('id', 'name', 'email', 'role_id', 'created_at', 'profile_photo_path')
                                 ->with('role')
                                 ->get();
-        // dd(json_encode($systemAccounts, JSON_PRETTY_PRINT));
+        $systemRoles = Role::select('id', 'name')
+                                ->where('name', '!=', 'member')
+                                ->get();
         return Inertia::render('Admin/SystemAccount/Index',[
-            'systemAccounts' => $systemAccounts
+            'systemAccounts' => $systemAccounts,
+            'systemRoles' => $systemRoles
         ]);
     }
     public function create(Request $request){

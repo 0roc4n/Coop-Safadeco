@@ -13,4 +13,9 @@ class Role extends Model
         'name',
         'description', 
     ];
+
+    public function privileges()
+    {
+        return $this->hasMany(Privilege::class);
+    }
 }

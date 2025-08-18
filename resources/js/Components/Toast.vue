@@ -1,14 +1,19 @@
 <template>
   <transition name="fade">
-    <div :class="['fixed top-6 right-6 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in', type === 'error' ? 'bg-red-600' : 'bg-green-600', 'text-white']">
-      <svg v-if="type === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div :class="[
+      'fixed z-[100] animate-fade-in text-white rounded-lg shadow-lg flex items-center gap-2',
+      'sm:top-6 sm:right-6 top-4 right-4 left-4 sm:left-auto',
+      'px-3 sm:px-6 py-2 sm:py-3 text-sm',
+      type === 'error' ? 'bg-red-600' : 'bg-green-600'
+    ]">
+      <svg v-if="type === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 105.636 18.364l1.414 1.414A9 9 0 1018.364 5.636z" />
       </svg>
-      <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
-      <span>{{ message }}</span>
-      <button @click="$emit('close')" class="ml-2 text-white/80 hover:text-white">&times;</button>
+      <span class="flex-grow">{{ message }}</span>
+      <button @click="$emit('close')" class="ml-2 text-white/80 hover:text-white text-lg leading-none">&times;</button>
     </div>
   </transition>
 </template>
