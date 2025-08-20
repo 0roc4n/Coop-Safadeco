@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\SystemAccount\SystemAccountsController;
 use App\Http\Controllers\Admin\SystemPrevilage\SystemPrevilageController;
+use App\Http\Controllers\Admin\Clientele\ClienteleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,8 +26,15 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     // System Administrator
     Route::get('/admin/systemaccounts', [SystemAccountsController::class, 'index'])->name('admin.system-account.index');
     Route::post('/admin/system-accounts/create', [SystemAccountsController::class, 'create'])->name('admin.system-account.create');
+    
     // System Previlage
     Route::get('/admin/system-previlage', [SystemPrevilageController::class, 'index'])->name('admin.system-previlage.index');
     Route::post('/admin/system-privileges/update', [SystemPrevilageController::class, 'update'])->name('admin.system-privileges.update');
     Route::post('/admin/system-privileges/create', [SystemPrevilageController::class, 'create'])->name('admin.system-privileges.create');
+    
+    // Clientele Management
+    Route::get('/admin/clientele', [ClienteleController::class, 'index'])->name('admin.clientele.index');
+    Route::post('/admin/clientele', [ClienteleController::class, 'store'])->name('admin.clientele.store');
+    Route::put('/admin/clientele/{clientCode}', [ClienteleController::class, 'update'])->name('admin.clientele.update');
+    Route::delete('/admin/clientele/{clientCode}', [ClienteleController::class, 'destroy'])->name('admin.clientele.destroy');
 });

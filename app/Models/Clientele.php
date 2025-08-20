@@ -9,7 +9,7 @@ class Clientele extends Model
     protected $primaryKey = 'ClientCode';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'ClientCode',
@@ -47,4 +47,9 @@ class Clientele extends Model
         'ResignationDate',
         'MaxShareCapital',
     ];
+
+    public function clienteleDetails()
+    {
+        return $this->hasOne(Clientele2::class, 'ClientCode', 'ClientCode');
+    }
 }

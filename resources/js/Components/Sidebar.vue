@@ -13,6 +13,7 @@
         label="Client & Account Management" 
         permission="can_read"
         :items="[
+          { to: '/admin/clientele', label: 'Clientele Management', permission: 'can_read' },
           { to: '/clients', label: 'Clients', permission: 'can_read' },
           { to: '/account-code', label: 'Account Code', permission: 'can_read' }
         ]" 
