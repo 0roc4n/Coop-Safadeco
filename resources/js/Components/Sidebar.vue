@@ -1,91 +1,112 @@
 <template>
-  <aside class="w-64 bg-blue-800 text-white min-h-screen flex flex-col">
-    <!-- <div class="px-4 py-5 flex items-center border-b border-blue-900">
-      <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-        <span class="text-blue-800 font-bold text-lg">S</span>
+  <div>
+    <!-- Collapsed state: Only arrow button visible -->
+    <div v-if="isCollapsed" class="fixed left-0 top-10 z-50 h-screen flex items-start pt-4">
+      <button
+        @click="toggleSidebar"
+        class="bg-blue-800 text-white p-3 rounded-r-lg shadow-lg hover:bg-blue-700 transition-colors duration-200"
+        aria-label="Expand sidebar"
+      >
+        <ChevronRight class="w-5 h-5" />
+      </button>
+    </div>
+
+    <!-- Expanded state: Full sidebar with all navigation -->
+    <aside
+      v-else
+      class="bg-blue-800 text-white min-h-screen flex flex-col transition-all duration-300 ease-in-out w-64"
+    >
+      <!-- Header with logo and collapse button -->
+      <div class="px-4 py-3 flex items-end justify-end border-b border-blue-900">
+        <button
+          @click="toggleSidebar"
+          class="text-white p-1 rounded hover:bg-blue-700 focus:outline-none transition-colors duration-200"
+          aria-label="Collapse sidebar"
+        >
+          <ChevronRight class="w-5 h-5 rotate-180" />
+        </button>
       </div>
-      <span class="ml-3 font-bold text-lg">SAFADECO</span>
-    </div> -->
-    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-      <SidebarLink to="/user/dashboard" label="Dashboard" permission="can_read" />
-      
-      <SidebarDropdown 
-        label="Client & Account Management" 
-        permission="can_read"
-        :items="[
-          { to: '/admin/clientele', label: 'Clientele Management', permission: 'can_read' },
-          { to: '/clients', label: 'Clients', permission: 'can_read' },
-          { to: '/account-code', label: 'Account Code', permission: 'can_read' }
-        ]" 
-      />
-      
-      <SidebarDropdown 
-        label="Loan & Product Management" 
-        permission="can_read"
-        :items="[
-          { to: '/loan-application', label: 'Loan Application', permission: 'can_read' },
-          { to: '/loan-products', label: 'Loan Products', permission: 'can_read' },
-          { to: '/loan-adjustments', label: 'Loan Adjustments', permission: 'can_update' }
-        ]" 
-      />
-      
-      <SidebarDropdown 
-        label="Financials & Transactions" 
-        permission="can_read"
-        :items="[
-          { to: '/book-journals', label: 'Book/Journals', permission: 'can_read' },
-          { to: '/billing-statements', label: 'Billing Statements', permission: 'can_read' },
-          { to: '/projections', label: 'Projections', permission: 'can_read' },
-          { to: '/past-due-settings', label: 'Past Due Settings', permission: 'can_update' },
-          { to: '/annual-fees', label: 'Annual Fees', permission: 'can_read' }
-        ]" 
-      />
-      
-      <SidebarDropdown 
-        label="System Administration" 
-        permission="can_read"
-        requiredRole="Admin"
-        :items="[
-          { to: '/admin/systemaccounts', label: 'System Accounts', permission: 'can_read', requiredRole: 'Admin' },
-          { to: '/admin/system-previlage', label: 'Accounts Privilege', permission: 'can_read', requiredRole: 'Admin' }
-        ]" 
-      />
-      
-      <SidebarLink to="/user/profile" label="Profile" permission="can_read" />
-    </nav>
-    <!-- <div class="px-4 py-4 border-t border-blue-900">
-      <SidebarLink to="/logout" label="Logout" />
-    </div> -->
-  </aside>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <SidebarLink :href="route('dashboard')" label="Dashboard" :icon="Home" />
+
+        <SidebarDropdown
+          label="Client & Account Management"
+          :icon="Users"
+          :items="[
+            { href: route('admin.clientele.index'), label: 'Clientele Management' },
+            { href: route('admin.account-codes.index'), label: 'Account Code' },
+          ]"
+        />
+
+        <SidebarDropdown
+          label="Loan & Product Management"
+          :icon="DollarSign"
+          :items="[
+            { href: '#', label: 'Loan Application' },
+            { href: '#', label: 'Loan Products' },
+            { href: '#', label: 'Loan Adjustments' },
+          ]"
+        />
+
+        <SidebarDropdown
+          label="Financials & Transactions"
+          :icon="Calculator"
+          :items="[
+            { href: route('admin.book-journals.index'), label: 'Book/Journals' },
+            { href: route('billing.statements.index'), label: 'Billing Statements' },
+            { href: '#', label: 'Projections' },
+            { href: '#', label: 'Past Due Settings' },
+            { href: '#', label: 'Annual Fees' },
+          ]"
+        />
+
+        <SidebarDropdown
+          label="System Administration"
+          :icon="Settings"
+          :items="[
+            { href: route('admin.system-account.index'), label: 'System Accounts' },
+            { href: route('admin.system-previlage.index'), label: 'Accounts Privilege' },
+          ]"
+        />
+
+        <SidebarLink :href="route('profile.show')" label="Profile" :icon="User" />
+      </nav>
+    </aside>
+  </div>
 </template>
 
 <script setup>
-import SidebarLink from './SidebarLink.vue';
-import SidebarDropdown from './SidebarDropdown.vue';
+import { ref, onMounted } from 'vue'
+import { ChevronRight, Home, Users, DollarSign, Calculator, Settings, User } from 'lucide-vue-next'
+import SidebarDropdown from './SidebarDropdown.vue'
+import SidebarLink from './SidebarLink.vue'
+
+// Use the route function from Inertia or fallback to safe default
+const route = (name, params = {}) => {
+  try {
+    return window.route(name, params)
+  } catch (error) {
+    console.warn(`Route "${name}" not found, using fallback`, error)
+    return '#'
+  }
+}
+
+const isCollapsed = ref(false)
+
+// Toggle sidebar collapsed state
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+  // Save collapsed state to localStorage
+  localStorage.setItem('sidebarCollapsed', isCollapsed.value ? 'true' : 'false')
+}
+
+// Restore sidebar state on component mount
+onMounted(() => {
+  const savedState = localStorage.getItem('sidebarCollapsed')
+  if (savedState) {
+    isCollapsed.value = savedState === 'true'
+  }
+})
 </script>
-
-<style scoped>
-/* Make the sidebar slightly wider to accommodate dropdowns */
-aside {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Hide scrollbar but maintain functionality */
-nav {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
-
-nav::-webkit-scrollbar {
-  width: 4px;
-}
-
-nav::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-nav::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-}
-</style>

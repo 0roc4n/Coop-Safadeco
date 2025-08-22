@@ -1,159 +1,111 @@
 <template>
-  <PermissionAwareLink :permission="permission" :requiredRole="requiredRole" v-slot="{ }" v-if="hasVisibleItems">
-    <div class="sidebar-dropdown">
-      <div 
-        @click="isOpen = !isOpen" 
-        class="dropdown-header" 
-        :class="[hasActiveChild ? 'has-active-child' : '']"
-      >
-        <span>{{ label }}</span>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          class="h-4 w-4 transition-transform" 
-          :class="[isOpen ? 'rotate-180' : '']"
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-      <div 
-        v-show="isOpen" 
-        class="dropdown-content transition-all overflow-hidden"
-      >
-        <div v-for="item in items" :key="item.to" class="dropdown-item">
-          <PermissionAwareLink 
-            :permission="item.permission || 'can_read'" 
-            :requiredRole="item.requiredRole" 
-            v-slot="{ }">
-            <a 
-              :href="item.to" 
-              class="sidebar-link-child"
-              :class="[isActive(item.to) ? 'active' : '']"
-            >
-              {{ item.label }}
-            </a>
-          </PermissionAwareLink>
+  <div class="mb-2">
+    <!-- Dropdown Header -->
+    <button
+      @click="toggleDropdown"
+      :class="[
+        'flex items-center justify-between w-full px-4 py-3 text-white rounded-lg',
+        'transition-all duration-200 border-l-3 border-transparent',
+        'hover:bg-blue-700 hover:text-yellow-300',
+        hasActiveChild ? 'bg-blue-600/50 text-yellow-300 font-semibold border-l-yellow-300' : ''
+      ]"
+    >
+      <div class="flex items-center">
+        <div class="flex items-center justify-center mr-3 min-w-[1.5rem]">
+          <component :is="icon" class="w-5 h-5" />
         </div>
+        <span class="text-base">{{ label }}</span>
+      </div>
+      <ChevronDown :class="['w-4 h-4 transition-transform duration-200', isOpen ? 'rotate-180' : '']" />
+    </button>
+
+    <!-- Dropdown Content -->
+    <div
+      :class="[
+        'overflow-hidden transition-all duration-300 ease-in-out',
+        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+      ]"
+    >
+      <div class="pl-4 mt-1 space-y-1">
+        <Link
+          v-for="item in items"
+          :key="item.href"
+          :href="item.href"
+          :class="[
+            'flex items-center justify-between w-full px-4 py-2 text-sm rounded-lg',
+            'transition-all duration-200 border-l-3 border-transparent',
+            'hover:bg-blue-600 hover:text-yellow-300',
+            isItemActive(item.href)
+              ? 'bg-blue-600 text-yellow-300 font-medium border-l-yellow-300 shadow-md shadow-yellow-300/10'
+              : 'text-white/85'
+          ]"
+        >
+          <span>{{ item.label }}</span>
+          <svg
+            v-if="isItemActive(item.href)"
+            class="w-4 h-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </Link>
       </div>
     </div>
-  </PermissionAwareLink>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
-import PermissionAwareLink from './PermissionAwareLink.vue'
+import { ref, computed, watch } from 'vue'
+import { ChevronDown } from 'lucide-vue-next'
+import { usePage, Link } from '@inertiajs/vue3'
 
 const props = defineProps({
-  label: String,
-  items: Array,
+  label: {
+    type: String,
+    required: true
+  },
+  icon: {
+    type: Object,
+    required: true
+  },
+  items: {
+    type: Array,
+    required: true
+  },
   defaultOpen: {
     type: Boolean,
     default: false
-  },
-  permission: {
-    type: String,
-    default: 'can_read'
-  },
-  requiredRole: {
-    type: [String, Number],
-    default: null
   }
 })
 
-const page = usePage()
 const isOpen = ref(props.defaultOpen)
-const userPermissions = computed(() => page.props.userPermissions)
+const page = usePage()
 
-const isActive = (path) => {
-  return page.url === path || page.url.startsWith(path + '/')
-}
-
-// Check if item is visible based on permissions
-const isItemVisible = (item) => {
-  // Admin (role_id = 1) always has access to everything
-  if (userPermissions.value?.role?.id === 1) {
-    return true;
+const isItemActive = (href) => {
+  if (!href || href === '#') {
+    return false
   }
   
-  // If a specific role is required, check if user has that role
-  if (item.requiredRole && 
-      userPermissions.value?.role?.id !== item.requiredRole && 
-      userPermissions.value?.role?.name !== item.requiredRole) {
-    return false;
-  }
-  
-  // Check the specific permission (default to can_read)
-  const permission = item.permission || 'can_read';
-  return userPermissions.value?.privileges?.[permission] === true;
+  return page.url === href || (href !== '/' && page.url.startsWith(href + '/'))
 }
-
-// Filter visible items based on permissions
-const visibleItems = computed(() => {
-  return props.items.filter(isItemVisible);
-})
-
-// Check if there are any visible items
-const hasVisibleItems = computed(() => {
-  return visibleItems.value.length > 0;
-})
 
 const hasActiveChild = computed(() => {
-  return props.items.some(item => isActive(item.to) && isItemVisible(item))
+  return props.items.some(item => isItemActive(item.href))
 })
 
-// If any child is active, open the dropdown by default
-if (hasActiveChild.value && !props.defaultOpen) {
-  isOpen.value = true
+// Auto-open if has active child
+watch(hasActiveChild, (newValue) => {
+  if (newValue && !isOpen.value) {
+    isOpen.value = true
+  }
+})
+
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
 }
 </script>
-
-<style scoped>
-.sidebar-dropdown {
-  margin-bottom: 0.5rem;
-}
-
-.dropdown-header {
-  font-size: 1.1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  background: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.dropdown-header:hover, .dropdown-header.has-active-child {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-header.has-active-child {
-  color: #ffe066;
-}
-
-.dropdown-content {
-  padding-left: 1rem;
-  margin-top: 0.25rem;
-}
-
-.sidebar-link-child {
-  font-size: 0.95rem;
-  padding: 0.6rem 1rem;
-  border-radius: 0.375rem;
-  display: block;
-  color: rgba(255, 255, 255, 0.85);
-  background: none;
-  transition: background 0.2s;
-  text-decoration: none;
-}
-
-.sidebar-link-child:hover, .sidebar-link-child.active {
-  background: #2563eb;
-  color: #ffe066;
-}
-</style>
