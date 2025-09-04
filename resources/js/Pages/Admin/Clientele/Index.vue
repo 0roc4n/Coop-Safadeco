@@ -28,6 +28,106 @@
                 <!-- Toast Notification -->
                 <Toast v-if="toastMessage" :message="toastMessage" :type="toastType" @close="toastMessage = ''" />
 
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Total Clients</p>
+                                <p class="text-2xl font-bold">{{ statistics.total_clients || 0 }}</p>
+                            </div>
+                            <div class="bg-blue-400/30 p-3 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100 text-sm font-medium">Active Members</p>
+                                <p class="text-2xl font-bold">{{ statistics.active_clients || 0 }}</p>
+                            </div>
+                            <div class="bg-green-400/30 p-3 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-100 text-sm font-medium">New This Month</p>
+                                <p class="text-2xl font-bold">{{ statistics.new_members_this_month || 0 }}</p>
+                            </div>
+                            <div class="bg-purple-400/30 p-3 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-orange-100 text-sm font-medium">Avg. Salary</p>
+                                <p class="text-2xl font-bold">₱{{ formatCurrency(statistics.average_monthly_salary || 0) }}</p>
+                            </div>
+                            <div class="bg-orange-400/30 p-3 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gender Distribution Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-xl border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Gender Distribution</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Male</span>
+                                </div>
+                                <span class="font-semibold text-gray-900">{{ statistics.male_clients || 0 }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-pink-500 rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Female</span>
+                                </div>
+                                <span class="font-semibold text-gray-900">{{ statistics.female_clients || 0 }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                                <div class="bg-blue-500 h-2 rounded-full" :style="{ width: malePercentage + '%' }"></div>
+                            </div>
+                            <p class="text-sm text-gray-600 text-center">{{ malePercentage.toFixed(1) }}% Male, {{ femalePercentage.toFixed(1) }}% Female</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-xl border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Membership Growth</h3>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-600 mb-2">+{{ statistics.new_members_this_month || 0 }}</div>
+                            <p class="text-gray-600 mb-4">New members this month</p>
+                            <div class="flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                <span class="text-sm text-green-600 font-medium">Growing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Search and Filter Section -->
                 <div class="bg-white/80 backdrop-blur-sm shadow-xl rounded-xl border border-gray-200 mb-6">
                     <div class="p-6">
@@ -154,6 +254,18 @@
                                     <!-- Actions -->
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center space-x-2">
+                                            <!-- View Button -->
+                                            <button 
+                                                @click="viewClient(client)"
+                                                class="inline-flex items-center p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors duration-150"
+                                                title="View Client Details"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <!-- Edit Button -->
                                             <button 
                                                 @click="editClient(client)"
                                                 class="inline-flex items-center p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors duration-150"
@@ -163,6 +275,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
+                                            <!-- Delete Button -->
                                             <button 
                                                 @click="deleteClient(client)"
                                                 class="inline-flex items-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors duration-150"
@@ -253,6 +366,10 @@ const props = defineProps({
     clienteles: {
         type: Object,
         required: true
+    },
+    statistics: {
+        type: Object,
+        default: () => ({})
     }
 });
 
@@ -301,6 +418,16 @@ const paginatedClients = computed(() => {
     return filteredClients.value.slice(start, end);
 });
 
+const malePercentage = computed(() => {
+    const total = (props.statistics.male_clients || 0) + (props.statistics.female_clients || 0);
+    return total > 0 ? ((props.statistics.male_clients || 0) / total) * 100 : 0;
+});
+
+const femalePercentage = computed(() => {
+    const total = (props.statistics.male_clients || 0) + (props.statistics.female_clients || 0);
+    return total > 0 ? ((props.statistics.female_clients || 0) / total) * 100 : 0;
+});
+
 // Watch for search/filter changes to reset pagination
 watch([searchQuery, selectedClientType], () => {
     currentPage.value = 1;
@@ -318,6 +445,18 @@ const getClientTypeName = (type) => {
         3: 'Honorary Member'
     };
     return types[type] || 'Unknown';
+};
+
+const formatCurrency = (amount) => {
+    if (!amount) return '0.00';
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+};
+
+const viewClient = (client) => {
+    window.location.href = route('admin.clientele.show', client.ClientCode);
 };
 
 const getClientTypeColor = (type) => {
@@ -339,14 +478,6 @@ const formatDate = (dateString) => {
     });
 };
 
-const formatCurrency = (amount) => {
-    if (!amount) return '0.00';
-    return new Intl.NumberFormat('en-PH', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-};
 
 const getAge = (birthDate) => {
     if (!birthDate) return '';

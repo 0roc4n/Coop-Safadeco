@@ -52,4 +52,9 @@ class Clientele extends Model
     {
         return $this->hasOne(Clientele2::class, 'ClientCode', 'ClientCode');
     }
+
+    public function loanApplications()
+    {
+        return $this->hasMany(LoanApplications::class, 'ClientCode', 'ClientCode');
+    }
 }

@@ -39,6 +39,8 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     // Clientele Management
     Route::get('/admin/clientele', [ClienteleController::class, 'index'])->name('admin.clientele.index');
     Route::post('/admin/clientele', [ClienteleController::class, 'store'])->name('admin.clientele.store');
+    Route::get('/admin/clientele/{clientCode}', [ClienteleController::class, 'show'])->name('admin.clientele.show');
+    Route::get('/admin/clientele/{clientCode}/export/{format}', [ClienteleController::class, 'export'])->name('admin.clientele.export');
     Route::put('/admin/clientele/{clientCode}', [ClienteleController::class, 'update'])->name('admin.clientele.update');
     Route::delete('/admin/clientele/{clientCode}', [ClienteleController::class, 'destroy'])->name('admin.clientele.destroy');
 
@@ -62,5 +64,14 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     Route::put('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'update'])->name('admin.account-codes.update');
     Route::delete('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'destroy'])->name('admin.account-codes.destroy');
 
+    // Loan Applications
     Route::get('/admin/loan-applications', [LoanApplicationController::class, 'index'])->name('admin.loan-applications.index');
+    Route::get('/admin/loan-applications/create', [LoanApplicationController::class, 'create'])->name('admin.loan-applications.create');
+    Route::post('/admin/loan-applications', [LoanApplicationController::class, 'store'])->name('admin.loan-applications.store');
+    Route::get('/admin/loan-applications/{loanApplication}', [LoanApplicationController::class, 'show'])->name('admin.loan-applications.show');
+    Route::get('/admin/loan-applications/{loanApplication}/edit', [LoanApplicationController::class, 'edit'])->name('admin.loan-applications.edit');
+    Route::put('/admin/loan-applications/{loanApplication}', [LoanApplicationController::class, 'update'])->name('admin.loan-applications.update');
+    Route::delete('/admin/loan-applications/{loanApplication}', [LoanApplicationController::class, 'destroy'])->name('admin.loan-applications.destroy');
+    Route::patch('/admin/loan-applications/{loanApplication}/approval', [LoanApplicationController::class, 'updateApproval'])->name('admin.loan-applications.approval');
+    Route::get('/admin/loan-applications/search-clients', [LoanApplicationController::class, 'searchClients'])->name('admin.loan-applications.search-clients');
 });

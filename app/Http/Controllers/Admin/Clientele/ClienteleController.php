@@ -32,9 +32,40 @@ class ClienteleController extends Controller
             ->with('clienteleDetails')
             ->orderBy('LastName', 'asc')
             ->paginate(50);
-            // dd($clienteles);
+
+        // Calculate statistics
+        $totalClients = Clientele::count();
+        $activeClients = Clientele::whereNotNull('DateOfMembership')
+            ->where('DateOfMembership', '<=', now())
+            ->count();
+        $newMembersThisMonth = Clientele::whereMonth('DateOfMembership', now()->month)
+            ->whereYear('DateOfMembership', now()->year)
+            ->count();
+        $maleClients = Clientele::where('Sex', 1)->count();
+        $femaleClients = Clientele::where('Sex', 0)->count();
+        $averageMonthlySalary = Clientele::whereNotNull('MonthlySalary')
+            ->where('MonthlySalary', '>', 0)
+            ->avg('MonthlySalary');
+        
+        // Client type distribution
+        $clientTypeDistribution = Clientele::select('ClientType', DB::raw('count(*) as count'))
+            ->groupBy('ClientType')
+            ->get()
+            ->keyBy('ClientType');
+
+        $statistics = [
+            'total_clients' => $totalClients,
+            'active_clients' => $activeClients,
+            'new_members_this_month' => $newMembersThisMonth,
+            'male_clients' => $maleClients,
+            'female_clients' => $femaleClients,
+            'average_monthly_salary' => round($averageMonthlySalary ?? 0, 2),
+            'client_type_distribution' => $clientTypeDistribution
+        ];
+
         return Inertia::render('Admin/Clientele/Index', [
-            'clienteles' => $clienteles
+            'clienteles' => $clienteles,
+            'statistics' => $statistics
         ]);
     }
 
@@ -245,6 +276,102 @@ class ClienteleController extends Controller
             DB::rollBack();
             return back()->withErrors(['error' => 'Failed to update client: ' . $e->getMessage()]);
         }
+    }
+
+    public function show($clientCode)
+    {
+        $clientele = Clientele::with(['clienteleDetails'])
+            ->findOrFail($clientCode);
+
+        // Get additional related data if relationships exist
+        $loanApplications = collect();
+        $totalLoans = 0;
+        $approvedLoans = 0;
+        $pendingLoans = 0;
+
+        // Check if the relationship exists before querying
+        if (method_exists($clientele, 'loanApplications')) {
+            $loanApplications = $clientele->loanApplications()
+                ->select(['LACode', 'DtOfApp', 'LoanType', 'LoanStatus', 'Approved', 'LoanNumber', 'RatingScore'])
+                ->orderBy('DtOfApp', 'desc')
+                ->limit(10)
+                ->get();
+
+            $totalLoans = $clientele->loanApplications()->count();
+            $approvedLoans = $clientele->loanApplications()->where('Approved', 1)->count();
+            $pendingLoans = $clientele->loanApplications()->where('LoanStatus', 1)->count();
+        }
+
+        return Inertia::render('Admin/Clientele/Show', [
+            'clientele' => $clientele,
+            'loanApplications' => $loanApplications,
+            'loanStats' => [
+                'total' => $totalLoans,
+                'approved' => $approvedLoans,
+                'pending' => $pendingLoans
+            ]
+        ]);
+    }
+
+    public function export($clientCode, $format = 'pdf')
+    {
+        $clientele = Clientele::with(['clienteleDetails'])
+            ->findOrFail($clientCode);
+
+        $loanApplications = collect();
+        if (method_exists($clientele, 'loanApplications')) {
+            $loanApplications = $clientele->loanApplications()
+                ->orderBy('DtOfApp', 'desc')
+                ->get();
+        }
+
+        if ($format === 'pdf') {
+            return $this->exportToPdf($clientele, $loanApplications);
+        } elseif ($format === 'excel') {
+            return $this->exportToExcel($clientele, $loanApplications);
+        }
+
+        return back()->withErrors(['error' => 'Invalid export format']);
+    }
+
+    private function exportToPdf($clientele, $loanApplications)
+    {
+        // Create HTML content for PDF
+        $html = view('exports.clientele-pdf', [
+            'clientele' => $clientele,
+            'loanApplications' => $loanApplications
+        ])->render();
+
+        // For now, return a simple response. You can integrate with dompdf later
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="clientele-' . $clientele->ClientCode . '.html"');
+    }
+
+    private function exportToExcel($clientele, $loanApplications)
+    {
+        // Create CSV content for Excel compatibility
+        $csvContent = "Client Information\n";
+        $csvContent .= "Client Code,{$clientele->ClientCode}\n";
+        $csvContent .= "Name,{$clientele->FirstName} {$clientele->MiddleName} {$clientele->LastName}\n";
+        $csvContent .= "Date of Birth," . ($clientele->DtBirth ? date('Y-m-d', strtotime($clientele->DtBirth)) : 'N/A') . "\n";
+        $csvContent .= "Gender," . ($clientele->Sex ? 'Male' : 'Female') . "\n";
+        $csvContent .= "Address,{$clientele->Addr1}\n";
+        $csvContent .= "Phone,{$clientele->TelNum}\n";
+        $csvContent .= "Occupation,{$clientele->Occupation}\n";
+        $csvContent .= "Monthly Salary,{$clientele->MonthlySalary}\n";
+        $csvContent .= "Date of Membership," . ($clientele->DateOfMembership ? date('Y-m-d', strtotime($clientele->DateOfMembership)) : 'N/A') . "\n";
+        
+        if ($clientele->clienteleDetails) {
+            $csvContent .= "SSS,{$clientele->clienteleDetails->SSS}\n";
+            $csvContent .= "TIN,{$clientele->clienteleDetails->TIN}\n";
+            $csvContent .= "Height,{$clientele->clienteleDetails->Height}\n";
+            $csvContent .= "Weight,{$clientele->clienteleDetails->Weight}\n";
+        }
+
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="clientele-' . $clientele->ClientCode . '.csv"');
     }
 
     public function destroy($clientCode)
