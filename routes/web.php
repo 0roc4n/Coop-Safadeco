@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SystemPrevilage\SystemPrevilageController;
 use App\Http\Controllers\Admin\Clientele\ClienteleController;
 use App\Http\Controllers\Admin\Billing\BillStateHDRController;
 use App\Http\Controllers\Admin\AccountCodes\AccountCodesController;
+use App\Http\Controllers\Admin\LoanApplication\LoanApplicationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -60,4 +61,6 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     Route::get('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'show'])->name('admin.account-codes.show');
     Route::put('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'update'])->name('admin.account-codes.update');
     Route::delete('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'destroy'])->name('admin.account-codes.destroy');
+
+    Route::get('/admin/loan-applications', [LoanApplicationController::class, 'index'])->name('admin.loan-applications.index');
 });
