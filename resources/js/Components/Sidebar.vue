@@ -44,7 +44,7 @@
           label="Loan & Product Management"
           :icon="DollarSign"
           :items="[
-            { href: '#', label: 'Loan Application' },
+            { href: route('admin.loan-applications.index'), label: 'Loan Application' },
             { href: '#', label: 'Loan Products' },
             { href: '#', label: 'Loan Adjustments' },
           ]"
