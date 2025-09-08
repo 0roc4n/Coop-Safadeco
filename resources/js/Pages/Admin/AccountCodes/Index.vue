@@ -38,15 +38,40 @@
                                     </select>
                                 </div>
                             </div>
-                            <button
-                                @click="openAddModal"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150"
-                            >
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Add Account
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <!-- Export Button -->
+                                <button
+                                    @click="exportData"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Export CSV
+                                </button>
+                                
+                                <!-- Import Button -->
+                                <button
+                                    @click="openImportModal"
+                                    class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition ease-in-out duration-150"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    Import CSV
+                                </button>
+                                
+                                <!-- Add Account Button -->
+                                <button
+                                    @click="openAddModal"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150"
+                                >
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Add Account
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -62,6 +87,30 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm text-green-700">{{ $page.props.flash.success }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Messages -->
+                    <div v-if="$page.props.flash && $page.props.flash.warning" 
+                         class="bg-yellow-50 border-l-4 border-yellow-400 p-4 m-4 rounded-md" 
+                         role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">{{ $page.props.flash.warning }}</p>
+                                <div v-if="$page.props.flash.import_errors" class="mt-2">
+                                    <details class="cursor-pointer">
+                                        <summary class="text-sm font-medium text-yellow-800">View Import Errors</summary>
+                                        <ul class="mt-2 text-xs text-yellow-700 space-y-1">
+                                            <li v-for="error in $page.props.flash.import_errors" :key="error">{{ error }}</li>
+                                        </ul>
+                                    </details>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -530,6 +579,95 @@
                 </div>
             </div>
         </div>
+
+        <!-- Import Modal -->
+        <div v-if="showImportModal" class="fixed inset-0 overflow-y-auto z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Background overlay -->
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showImportModal = false"></div>
+
+                <!-- Modal panel -->
+                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <form @submit.prevent="submitImport">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                Import Account Codes from CSV
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="import-file" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Select CSV File
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="import-file"
+                                        ref="fileInput"
+                                        accept=".csv,.txt"
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        required
+                                    />
+                                    <div v-if="importForm.errors.file" class="text-red-500 text-xs mt-1">{{ importForm.errors.file }}</div>
+                                </div>
+                                
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-blue-800">
+                                                Import Instructions
+                                            </h3>
+                                            <div class="mt-2 text-sm text-blue-700">
+                                                <ul class="list-disc list-inside space-y-1">
+                                                    <li>File must be in CSV format</li>
+                                                    <li>First row should contain column headers (lowercase with underscores)</li>
+                                                    <li>Account codes must be unique</li>
+                                                    <li>Required fields: account_code, type, has_sl, code_ext, x_override, cash_flow_type, is_expense_analysis</li>
+                                                    <li>Use "Yes"/"No" for boolean fields (has_sl, is_expense_analysis, is_finance)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <button
+                                        type="button"
+                                        @click="downloadTemplate"
+                                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    >
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        Download Template
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button
+                                type="submit"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                :disabled="importForm.processing"
+                            >
+                                {{ importForm.processing ? 'Importing...' : 'Import' }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                @click="showImportModal = false"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </AppLayout>
 </template>
 
@@ -552,8 +690,10 @@ const typeFilter = ref(props.filters.type || '');
 const showModal = ref(false);
 const showViewModal = ref(false);
 const showDeleteModal = ref(false);
+const showImportModal = ref(false);
 const editMode = ref(false);
 const selectedAccount = ref(null);
+const fileInput = ref(null);
 
 // Form for adding/editing account codes
 const form = useForm({
@@ -571,6 +711,11 @@ const form = useForm({
     CashFlowType: 0,
     IsExpAnalysis: false,
     isFinance: null,
+});
+
+// Form for importing CSV
+const importForm = useForm({
+    file: null,
 });
 
 // Type and SubType name mappings
@@ -679,5 +824,42 @@ const deleteAccount = () => {
             showDeleteModal.value = false;
         }
     });
+};
+
+// Export data to CSV
+const exportData = () => {
+    window.location.href = route('admin.account-codes.export');
+};
+
+// Open import modal
+const openImportModal = () => {
+    showImportModal.value = true;
+    importForm.reset();
+    importForm.clearErrors();
+};
+
+// Submit import form
+const submitImport = () => {
+    const file = fileInput.value.files[0];
+    if (!file) {
+        importForm.setError('file', 'Please select a file to import');
+        return;
+    }
+    
+    importForm.file = file;
+    importForm.post(route('admin.account-codes.import'), {
+        onSuccess: () => {
+            showImportModal.value = false;
+            importForm.reset();
+        },
+        onError: (errors) => {
+            console.error('Import errors:', errors);
+        }
+    });
+};
+
+// Download CSV template
+const downloadTemplate = () => {
+    window.location.href = route('admin.account-codes.template');
 };
 </script>

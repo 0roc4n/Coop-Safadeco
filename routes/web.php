@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Clientele\ClienteleController;
 use App\Http\Controllers\Admin\Billing\BillStateHDRController;
 use App\Http\Controllers\Admin\AccountCodes\AccountCodesController;
 use App\Http\Controllers\Admin\LoanApplication\LoanApplicationController;
+use App\Http\Controllers\Admin\LoanProduct\LoanProductController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -63,6 +64,9 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     Route::get('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'show'])->name('admin.account-codes.show');
     Route::put('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'update'])->name('admin.account-codes.update');
     Route::delete('/admin/account-codes/{acctCode}', [AccountCodesController::class, 'destroy'])->name('admin.account-codes.destroy');
+    Route::get('/admin/account-codes/export/csv', [AccountCodesController::class, 'export'])->name('admin.account-codes.export');
+    Route::post('/admin/account-codes/import/csv', [AccountCodesController::class, 'import'])->name('admin.account-codes.import');
+    Route::get('/admin/account-codes/template/download', [AccountCodesController::class, 'downloadTemplate'])->name('admin.account-codes.template');
 
     // Loan Applications
     Route::get('/admin/loan-applications', [LoanApplicationController::class, 'index'])->name('admin.loan-applications.index');
@@ -74,4 +78,13 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
     Route::delete('/admin/loan-applications/{loanApplication}', [LoanApplicationController::class, 'destroy'])->name('admin.loan-applications.destroy');
     Route::patch('/admin/loan-applications/{loanApplication}/approval', [LoanApplicationController::class, 'updateApproval'])->name('admin.loan-applications.approval');
     Route::get('/admin/loan-applications/search-clients', [LoanApplicationController::class, 'searchClients'])->name('admin.loan-applications.search-clients');
+
+    // Loan Products
+    Route::get('/admin/loan-products', [LoanProductController::class, 'index'])->name('admin.loan-products.index');
+    Route::get('/admin/loan-products/create', [LoanProductController::class, 'create'])->name('admin.loan-products.create');
+    Route::post('/admin/loan-products', [LoanProductController::class, 'store'])->name('admin.loan-products.store');
+    Route::get('/admin/loan-products/{loanProduct}', [LoanProductController::class, 'show'])->name('admin.loan-products.show');
+    Route::get('/admin/loan-products/{loanProduct}/edit', [LoanProductController::class, 'edit'])->name('admin.loan-products.edit');
+    Route::put('/admin/loan-products/{loanProduct}', [LoanProductController::class, 'update'])->name('admin.loan-products.update');
+    Route::delete('/admin/loan-products/{loanProduct}', [LoanProductController::class, 'destroy'])->name('admin.loan-products.destroy');
 });
