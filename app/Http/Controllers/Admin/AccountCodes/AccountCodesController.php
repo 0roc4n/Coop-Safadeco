@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin\AccountCodes;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcctCode;
+use App\Exports\AccountCodesExport;
+use App\Imports\AccountCodesImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AccountCodesController extends Controller
 {
@@ -172,5 +175,144 @@ class AccountCodesController extends Controller
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to delete account code: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Export account codes to CSV
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function export()
+    {
+        return Excel::download(new AccountCodesExport, 'account_codes_' . date('Y-m-d_H-i-s') . '.csv');
+    }
+
+    /**
+     * Import account codes from CSV
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $import = new AccountCodesImport;
+            $initialCount = AcctCode::count();
+            
+            Excel::import($import, $request->file('file'));
+
+            $finalCount = AcctCode::count();
+            $successCount = $finalCount - $initialCount;
+            $errorCount = 0;
+            $errors = [];
+
+            // Get import failures
+            if ($import->failures()->count() > 0) {
+                foreach ($import->failures() as $failure) {
+                    $errorCount++;
+                    $errors[] = "Row {$failure->row()}: " . implode(', ', $failure->errors());
+                }
+            }
+
+            // Get import errors
+            if ($import->errors()->count() > 0) {
+                foreach ($import->errors() as $error) {
+                    $errorCount++;
+                    $errors[] = $error;
+                }
+            }
+
+            DB::commit();
+
+            $message = "Import completed. ";
+            if ($successCount > 0) {
+                $message .= "{$successCount} records imported successfully. ";
+            }
+            if ($errorCount > 0) {
+                $message .= "{$errorCount} records failed. ";
+            }
+
+            if ($errorCount > 0) {
+                return redirect()->route('admin.account-codes.index')
+                    ->with('warning', $message)
+                    ->with('import_errors', array_slice($errors, 0, 10)); // Limit to first 10 errors
+            } else {
+                return redirect()->route('admin.account-codes.index')
+                    ->with('success', $message);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors(['error' => 'Import failed: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Download sample CSV template
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadTemplate()
+    {
+        $headers = [
+            'account_code',
+            'type',
+            'sub_type',
+            'description',
+            'account_type',
+            'has_sl',
+            'related_parent_code',
+            'code_ext',
+            'x_override',
+            'account_class',
+            'accumulated_depreciation_code',
+            'cash_flow_type',
+            'is_expense_analysis',
+            'is_finance'
+        ];
+
+        $sampleData = [
+            [
+                'SAMPLE001',
+                '1',
+                '1',
+                'Sample Account Description',
+                '1',
+                'Yes',
+                '',
+                '0',
+                '0',
+                '1',
+                '',
+                '0',
+                'No',
+                'No'
+            ]
+        ];
+
+        $filename = 'account_codes_template.csv';
+        $handle = fopen('php://temp', 'r+');
+
+        // Add headers
+        fputcsv($handle, $headers);
+
+        // Add sample data
+        foreach ($sampleData as $row) {
+            fputcsv($handle, $row);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($content)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
