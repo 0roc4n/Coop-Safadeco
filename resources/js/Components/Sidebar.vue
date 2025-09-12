@@ -52,12 +52,12 @@
       ]"
     >
       <!-- Header with logo and toggle button -->
-      <div class="px-4 py-3 flex items-center justify-between border-b border-blue-900">
+      <div class="px-4 py-3 flex items-center justify-end border-b border-blue-900">
         <!-- Logo/Brand (visible on mobile and expanded desktop) -->
-        <div class="flex items-center">
+        <!-- <div class="flex items-center">
           <img src="/images/logo.png" alt="Logo" class="h-8 w-8 mr-2" />
           <h1 class="text-lg font-semibold text-white">SAFADECO</h1>
-        </div>
+        </div> -->
         
         <!-- Desktop collapse button -->
         <button
