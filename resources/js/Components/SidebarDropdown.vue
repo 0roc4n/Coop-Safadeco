@@ -31,6 +31,7 @@
           v-for="item in items"
           :key="item.href"
           :href="item.href"
+          @click="$emit('link-click')"
           :class="[
             'flex items-center justify-between w-full px-4 py-2 text-sm rounded-lg',
             'transition-all duration-200 border-l-3 border-transparent',
@@ -82,6 +83,8 @@ const props = defineProps({
     default: false
   }
 })
+
+const emit = defineEmits(['link-click'])
 
 const isOpen = ref(props.defaultOpen)
 const page = usePage()

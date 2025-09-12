@@ -283,9 +283,12 @@ const logout = () => {
                 <!-- <Sidebar />
                 <slot /> -->
                 <div class="flex">
-                    <Sidebar />
+                    
                     <div class="flex-1 p-6 bg-white">
-                        <slot />
+                        <div class="flex">
+                            <Sidebar />
+                            <slot />
+                        </div>
                     </div>
                 </div>
             </main>
