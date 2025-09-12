@@ -1,6 +1,7 @@
 <template>
   <Link
     :href="href"
+    @click="$emit('click')"
     :class="[
       'flex items-center w-full px-4 py-3 text-white rounded-lg transition-all duration-200',
       'border-l-3 border-transparent hover:bg-blue-700 hover:text-yellow-300',
@@ -44,6 +45,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['click'])
 
 const page = usePage()
 
