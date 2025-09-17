@@ -286,7 +286,7 @@ const logout = () => {
                     
                     <div class="flex-1 p-6 bg-white">
                         <div class="flex">
-                            <Sidebar />
+                            <slot name="sidebar"><Sidebar /></slot>
                             <slot />
                         </div>
                     </div>

@@ -13,12 +13,12 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            'Role',
-            'Members',
-            'Board of Directors',
-            'Officers',
-            'Staff',
-            'Committees',
+            'Admin',
+            'Teller',
+            'Accountant',
+            'Loan officer',
+            'Clerk',
+            'Member',
         ];
 
         foreach ($roles as $roleName) {

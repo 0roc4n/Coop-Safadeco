@@ -12,6 +12,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\TellerMiddleware;
+use App\Http\Middleware\LoanOfficerMiddleware;
+use App\Http\Middleware\AccountantMiddleware;
+use App\Http\Middleware\ClerkMiddleware;
+use App\Http\Middleware\MemberMiddleware;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -20,6 +25,41 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
+});
+
+// Teller routes
+Route::middleware(['auth:sanctum', TellerMiddleware::class])->group(function () {
+    Route::get('/teller/dashboard', function () {
+        return Inertia::render('Teller/Dashboard');
+    })->name('teller.dashboard');
+});
+
+// Loan Officer routes
+Route::middleware(['auth:sanctum', LoanOfficerMiddleware::class])->group(function () {
+    Route::get('/loanofficer/dashboard', function () {
+        return Inertia::render('LoanOfficer/Dashboard');
+    })->name('loanofficer.dashboard');
+});
+
+// Accountant routes
+Route::middleware(['auth:sanctum', AccountantMiddleware::class])->group(function () {
+    Route::get('/accountant/dashboard', function () {
+        return Inertia::render('Accountant/Dashboard');
+    })->name('accountant.dashboard');
+});
+
+// Clerk routes
+Route::middleware(['auth:sanctum', ClerkMiddleware::class])->group(function () {
+    Route::get('/clerk/dashboard', function () {
+        return Inertia::render('Clerk/Dashboard');
+    })->name('clerk.dashboard');
+});
+
+// Member routes
+Route::middleware(['auth:sanctum', MemberMiddleware::class])->group(function () {
+    Route::get('/member/dashboard', function () {
+        return Inertia::render('Member/Dashboard');
+    })->name('member.dashboard');
 });
 
 // Admin routes
