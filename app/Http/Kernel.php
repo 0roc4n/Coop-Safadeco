@@ -33,6 +33,11 @@ class Kernel extends HttpKernel
      */
     protected $middlewareAliases = [
         'inertia' => \App\Http\Middleware\HandleInertiaRequests::class,
+        'teller' => \App\Http\Middleware\TellerMiddleware::class,
+        'accountant' => \App\Http\Middleware\AccountantMiddleware::class,
+        'loanofficer' => \App\Http\Middleware\LoanOfficerMiddleware::class,
+        'clerk' => \App\Http\Middleware\ClerkMiddleware::class,
+        'member' => \App\Http\Middleware\MemberMiddleware::class,
     ];
     
     /**
