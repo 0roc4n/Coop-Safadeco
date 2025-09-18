@@ -34,8 +34,9 @@ function openCreate() {
 }
 
 function openEdit(row) {
-	selected.value = row
-	selectedClient.value = row
+    selected.value = row
+    const details = row.clientele_details || row.clienteleDetails || {}
+    selectedClient.value = { ...row, ...details }
 	isEditingClient.value = true
 	showClientModal.value = true
 }
