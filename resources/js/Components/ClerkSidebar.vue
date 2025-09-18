@@ -32,8 +32,7 @@ const sections = [
 	{
 		heading: 'Member Management',
 		items: [
-			{ label: 'Encode New Members', icon: Users, href: route('clerk.dashboard'), key: 'encode' },
-			{ label: 'Update Member Info', icon: BadgeCheck, href: route('clerk.dashboard'), key: 'update-member' },
+			{ label: 'Encode New Members', icon: Users, href: route('clerk.clientele.index'), key: 'encode' },
 		],
 	},
 	{
