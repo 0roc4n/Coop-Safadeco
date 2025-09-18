@@ -17,6 +17,7 @@ use App\Http\Middleware\LoanOfficerMiddleware;
 use App\Http\Middleware\AccountantMiddleware;
 use App\Http\Middleware\ClerkMiddleware;
 use App\Http\Middleware\MemberMiddleware;
+use App\Http\Controllers\Clerk\ClienteleController as ClerkClienteleController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -53,6 +54,12 @@ Route::middleware(['auth:sanctum', ClerkMiddleware::class])->group(function () {
     Route::get('/clerk/dashboard', function () {
         return Inertia::render('Clerk/Dashboard');
     })->name('clerk.dashboard');
+
+    // Clerk Clientele CRUD
+    Route::get('/clerk/clientele', [ClerkClienteleController::class, 'index'])->name('clerk.clientele.index');
+    Route::post('/clerk/clientele', [ClerkClienteleController::class, 'store'])->name('clerk.clientele.store');
+    Route::put('/clerk/clientele/{ClientCode}', [ClerkClienteleController::class, 'update'])->name('clerk.clientele.update');
+    Route::delete('/clerk/clientele/{ClientCode}', [ClerkClienteleController::class, 'destroy'])->name('clerk.clientele.destroy');
 });
 
 // Member routes
